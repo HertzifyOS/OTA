@@ -1,0 +1,18 @@
+{
+  "Xiaomi": [
+    {
+      "name": "Poco F4/Redmi K40S",
+      "codename": "munch",
+      "maintainer": "HDzungx",
+      "github": "https://github.com/hdzungx",
+      "telegram": "https://t.me/hdzungx",
+      "supported_versions": [
+        {
+          "version_code": "1.6",
+          "stable": true,
+          "deprecated": false
+        }
+      ]
+    }
+  ]
+}
