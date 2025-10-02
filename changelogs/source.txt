@@ -1,0 +1,2 @@
+=== 2026-04-25 | HertzifyOS v1.5 Release ===
+- Initial HertzifyOS Android 16 QPR2

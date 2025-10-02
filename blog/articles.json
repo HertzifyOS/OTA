@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "title": "HertzifyOS v1.5 Release",
+    "excerpt": "Initial release HertzifyOS v1.5 Android 16 QPR2.",
+    "slug": "1.hertzifyos-v1.5-release",
+    "date": "25 April, 2026",
+    "category": "Update"
+  },
+  {
+    "id": 2,
+    "title": "Play Integrity Fix Guide",
+    "excerpt": "Comprehensive guide to fixing Google Play Integrity (Basic, Device, and Strong) on HertzifyOS.",
+    "slug": "2.play-integrity-fix-guide",
+    "date": "30 April, 2026",
+    "category": "Guide"
+  }
+]
