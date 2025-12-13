@@ -1,0 +1,108 @@
+name: Add Device
+
+on:
+  workflow_dispatch:
+    inputs:
+      codename:
+        description: "Device codename (e.g. munch)"
+        required: true
+      device_name:
+        description: "Device name (e.g. Redmi K40S)"
+        required: false
+      maintainer:
+        description: "Maintainer username (no @)"
+        required: true
+
+concurrency:
+  group: hertzifyos-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  add-device:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate inputs
+        run: |
+          CODENAME="${{ github.event.inputs.codename }}"
+          MAINTAINER="${{ github.event.inputs.maintainer }}"
+
+          if ! echo "$CODENAME" | grep -qE '^[a-z0-9_]+$'; then
+            echo "::error::Invalid codename '$CODENAME'. Use lowercase letters, numbers, underscores only."
+            exit 1
+          fi
+
+          if echo "$MAINTAINER" | grep -qE '^@'; then
+            echo "::error::Maintainer must NOT include '@'. Got: $MAINTAINER"
+            exit 1
+          fi
+          if [[ -f "builds/gapps/${CODENAME}.json" ]] || [[ -f "builds/vanilla/${CODENAME}.json" ]]; then
+            echo "::error::Device '$CODENAME' already exists."
+            exit 1
+          fi
+
+          echo "Inputs validated."
+
+      - name: Create device files
+        run: |
+          CODENAME="${{ github.event.inputs.codename }}"
+          DEVICE="${{ github.event.inputs.device_name }}"
+          MAINTAINER="${{ github.event.inputs.maintainer }}"
+          LABEL="${DEVICE:-$CODENAME}"
+
+          mkdir -p builds/gapps builds/vanilla changelogs guides
+
+          echo "$CODENAME" >> devices/hertzify.devices
+
+          python3 -c "import json; data={'response':[{'datetime':0,'filename':'','id':'','romtype':'','size':0,'url':'','version':''}]}; open('builds/gapps/${CODENAME}.json','w').write(json.dumps(data,indent=2))"
+          python3 -c "import json; data={'response':[{'datetime':0,'filename':'','id':'','romtype':'','size':0,'url':'','version':''}]}; open('builds/vanilla/${CODENAME}.json','w').write(json.dumps(data,indent=2))"
+
+          printf '# Changelog - %s (%s)\n# Maintainer: @%s\n' \
+            "$LABEL" "$CODENAME" "$MAINTAINER" > "changelogs/${CODENAME}.txt"
+
+          printf '# Installation Guide - %s (%s)\n# Maintainer: @%s\n\nFor issues, contact @%s on Telegram.\n' \
+            "$LABEL" "$CODENAME" "$MAINTAINER" "$MAINTAINER" > "guides/${CODENAME}.txt"
+
+      - name: Commit & push
+        run: |
+          CODENAME="${{ github.event.inputs.codename }}"
+          DEVICE="${{ github.event.inputs.device_name }}"
+          MAINTAINER="${{ github.event.inputs.maintainer }}"
+          LABEL="${DEVICE:-$CODENAME}"
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add \
+            devices/hertzify.devices \
+            "builds/gapps/${CODENAME}.json" \
+            "builds/vanilla/${CODENAME}.json" \
+            "changelogs/${CODENAME}.txt" \
+            "guides/${CODENAME}.txt"
+          git commit -m "feat: add ${LABEL} (${CODENAME}) maintained by @${MAINTAINER}"
+          git push
+
+      - name: Telegram announcement
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHANNEL_ID: ${{ secrets.TG_CHANNEL_ID }}
+        run: |
+          CODENAME="${{ github.event.inputs.codename }}"
+          DEVICE="${{ github.event.inputs.device_name }}"
+          MAINTAINER="${{ github.event.inputs.maintainer }}"
+
+          if [[ -n "$DEVICE" ]]; then
+            DISPLAY="<b>${DEVICE}</b> (<code>${CODENAME}</code>)"
+          else
+            DISPLAY="<code>${CODENAME}</code>"
+          fi
+
+          export TEXT="$(printf '🎉 <b>Another new device has been added to the official device roster!</b>\n\n📱 %s\n👤 Maintained by @%s\n\n🔔 Stay tuned for the first build!\n\n#HertzifyOS' \
+            "$DISPLAY" "$MAINTAINER")"
+
+          curl -s -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+            -H "Content-Type: application/json" \
+            -d "$(python3 -c "import json,os; print(json.dumps({'chat_id':os.environ['TG_CHANNEL_ID'],'text':os.environ['TEXT'],'parse_mode':'HTML','disable_web_page_preview':True}))")"

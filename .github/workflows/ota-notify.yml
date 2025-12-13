@@ -1,0 +1,100 @@
+name: OTA Notify
+
+on:
+  push:
+    paths:
+      - "builds/gapps/*.json"
+      - "builds/vanilla/*.json"
+  pull_request:
+    types: [closed]
+    paths:
+      - "builds/gapps/*.json"
+      - "builds/vanilla/*.json"
+
+concurrency:
+  group: hertzifyos-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    if: |
+      (
+        github.event_name == 'push' ||
+        github.event.pull_request.merged == true
+      ) &&
+      github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve maintainer
+        id: maintainer
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "name=${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
+          else
+            echo "name=${{ github.actor }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Detect changed build JSONs
+        id: changed
+        run: |
+          BASE="${{ github.event.before }}"
+          if [[ -z "$BASE" || "$BASE" == "0000000000000000000000000000000000000000" ]]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          fi
+
+          CHANGED=$(git diff --name-only "$BASE" HEAD -- 'builds/gapps/*.json' 'builds/vanilla/*.json' | tr '\n' ' ')
+          echo "files=$CHANGED" >> $GITHUB_OUTPUT
+          if [[ -z "$CHANGED" ]]; then
+            echo "skip=true"  >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+            echo "Changed: $CHANGED"
+          fi
+
+      - name: Send OTA notifications
+        if: steps.changed.outputs.skip == 'false'
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHANNEL_ID: ${{ secrets.TG_CHANNEL_ID }}
+          MAINTAINER: ${{ steps.maintainer.outputs.name }}
+          REPO: ${{ github.repository }}
+          CHANGED_FILES: ${{ steps.changed.outputs.files }}
+        run: |
+          for f in $CHANGED_FILES; do
+            [[ ! -f "$f" ]] && echo "Skipping missing: $f" && continue
+
+            DATETIME=$(python3 -c "import json; d=json.load(open('$f')); print(d['response'][0].get('datetime', 0))")
+            [[ "$DATETIME" == "0" ]] && echo "Skipping placeholder: $f" && continue
+
+            FILENAME=$(python3 -c "import json; d=json.load(open('$f')); print(d['response'][0]['filename'])")
+            VERSION=$(python3 -c "import json; d=json.load(open('$f')); print(d['response'][0]['version'])")
+            ROMTYPE=$(python3 -c "import json; d=json.load(open('$f')); print(d['response'][0]['romtype'].upper())")
+            if [[ "$f" == builds/vanilla/* ]]; then
+                VARIANT="VANILLA"
+            else
+                VARIANT="GAPPS"
+            fi            SIZE_GB=$(python3 -c "import json; d=json.load(open('$f')); print(f\"{d['response'][0]['size']/(1024**3):.2f}\")")
+            URL=$(python3 -c "import json; d=json.load(open('$f')); print(d['response'][0]['url'])")
+            DEVICE=$(basename "$f" .json)
+            BUILD_DATE=$(date -u -d "@${DATETIME}" +"%Y-%m-%d")
+
+            CHANGELOG_URL="https://raw.githubusercontent.com/${REPO}/main/changelogs/${DEVICE}.txt"
+            MAINT_LINK="https://github.com/${MAINTAINER}"
+
+            export TEXT="$(printf '🚀 <b>HertzifyOS Update Released</b>\n\n📱 <b>Device:</b> <code>%s</code>\n📦 <b>Filename:</b> <code>%s</code>\n🧩 <b>Version:</b> <code>%s</code>\n🏷 <b>Type:</b> <code>%s</code>\n📦 <b>Variant:</b> <code>%s</code>\n💾 <b>Size:</b> <code>%s GB</code>\n📅 <b>Date:</b> <code>%s</code>\n👤 <b>Maintainer:</b> <a href="%s">%s</a>\n\n⬇️ <b><a href="%s">Download</a></b>\n📋 <b><a href="%s">Changelog</a></b>\n\n#%s #HertzifyOS' \
+              "$DEVICE" "$FILENAME" "$VERSION" "$ROMTYPE" "$VARIANT" "$SIZE_GB" "$BUILD_DATE" \
+              "$MAINT_LINK" "$MAINTAINER" "$URL" "$CHANGELOG_URL" "$DEVICE")"
+
+            RESP=$(python3 -c 'import json, os, urllib.request; payload = json.dumps({"chat_id": os.environ["TG_CHANNEL_ID"], "text": os.environ["TEXT"], "parse_mode": "HTML", "disable_web_page_preview": True}).encode(); req = urllib.request.Request("https://api.telegram.org/bot" + os.environ["TG_BOT_TOKEN"] + "/sendMessage", data=payload, headers={"Content-Type": "application/json"}); r = urllib.request.urlopen(req); print(r.read().decode())')
+
+            MESSAGE_ID=$(python3 -c "import json,sys; print(json.loads('$RESP')['result']['message_id'])")
+
+            python3 -c 'import json, os, urllib.request; payload = json.dumps({"chat_id": os.environ["TG_CHANNEL_ID"], "message_id": '"${MESSAGE_ID}"', "disable_notification": True}).encode(); req = urllib.request.Request("https://api.telegram.org/bot" + os.environ["TG_BOT_TOKEN"] + "/pinChatMessage", data=payload, headers={"Content-Type": "application/json"}); urllib.request.urlopen(req)' || true
+
+            echo "Notified & pinned: $DEVICE ($VARIANT)"
+          done
