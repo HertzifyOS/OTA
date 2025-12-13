@@ -1,0 +1,178 @@
+name: HertzifyOS
+
+on:
+  push:
+    paths:
+      - "builds/*.json"
+  pull_request:
+    types: [closed]
+    paths:
+      - "builds/*.json"
+  workflow_dispatch:
+    inputs:
+      codename:
+        description: "Device codename (e.g. munch)"
+        required: true
+      device_name:
+        description: "Device name (e.g. Redmi K40S)"
+        required: true
+      maintainer:
+        description: "Maintainer Telegram username"
+        required: true
+
+jobs:
+  # ──────────────────────────────────────────────
+  # JOB 1 – Add new device (manual trigger only)
+  # ──────────────────────────────────────────────
+  add-device:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create builds/<codename>.json
+        run: |
+          CODENAME="${{ github.event.inputs.codename }}"
+          DEVICE="${{ github.event.inputs.device_name }}"
+          MAINTAINER="${{ github.event.inputs.maintainer }}"
+
+          cat > "builds/${CODENAME}.json" <<EOF
+          {
+            "response": [
+              {
+                "datetime": "",
+                "filename": "",
+                "id": "",
+                "romtype": "",
+                "size": "",
+                "url": "",
+                "version": ""
+              }
+            ]
+          }
+          EOF
+
+      - name: Create changelogs/<codename>.txt
+        run: |
+          CODENAME="${{ github.event.inputs.codename }}"
+          DEVICE="${{ github.event.inputs.device_name }}"
+          MAINTAINER="${{ github.event.inputs.maintainer }}"
+          DATE=$(date -u +"%Y-%m-%d")
+
+          cat > "changelogs/${CODENAME}.txt" <<EOF
+          # Changelog – ${DEVICE} (${CODENAME})
+          # Maintainer: @${MAINTAINER}
+          # Last updated: ${DATE}
+
+          - Initial official support
+          EOF
+
+      - name: Create guides/<codename>.txt
+        run: |
+          CODENAME="${{ github.event.inputs.codename }}"
+          DEVICE="${{ github.event.inputs.device_name }}"
+          MAINTAINER="${{ github.event.inputs.maintainer }}"
+
+          cat > "guides/${CODENAME}.txt" <<EOF
+          # Installation Guide – ${DEVICE} (${CODENAME})
+          # Maintainer: @${MAINTAINER}
+
+          1. Download the latest build from the official channel.
+          2. Boot into custom recovery (e.g. TWRP / OrangeFox).
+          3. Perform a clean flash (wipe Data, Cache, Dalvik).
+          4. Flash the ROM zip.
+          5. Flash GApps if needed.
+          6. Reboot and enjoy HertzifyOS!
+
+          For issues, contact @${MAINTAINER} on Telegram.
+          EOF
+
+      - name: Commit & push new device files
+        run: |
+          CODENAME="${{ github.event.inputs.codename }}"
+          DEVICE="${{ github.event.inputs.device_name }}"
+          MAINTAINER="${{ github.event.inputs.maintainer }}"
+
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "builds/${CODENAME}.json" \
+                  "changelogs/${CODENAME}.txt" \
+                  "guides/${CODENAME}.txt"
+          git commit -m "feat: add ${DEVICE} (${CODENAME}) maintained by @${MAINTAINER}"
+          git push
+
+      - name: Send new-device Telegram announcement
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHANNEL_ID: ${{ secrets.TG_CHANNEL_ID }}
+          NEW_CODENAME: ${{ github.event.inputs.codename }}
+          NEW_DEVICE:   ${{ github.event.inputs.device_name }}
+          NEW_MAINTAINER: ${{ github.event.inputs.maintainer }}
+        run: |
+          python3 - <<'PYEOF'
+          import os, requests
+
+          bot      = os.environ["TG_BOT_TOKEN"]
+          chat     = os.environ["TG_CHANNEL_ID"]
+          device   = os.environ["NEW_DEVICE"]
+          codename = os.environ["NEW_CODENAME"]
+          maint    = os.environ["NEW_MAINTAINER"]
+
+          text = (
+              "🎉 <b>Another new device has been added to the official device roster!</b>\n"
+              "\n"
+              f"📱 <b>{device}</b> (<code>{codename}</code>)\n"
+              f"👤 Maintained by @{maint}\n"
+              "\n"
+              "🔔 Stay tuned for the first build!\n"
+              "\n"
+              f"#{codename} | #HertzifyOS"
+          )
+
+          resp = requests.post(
+              f"https://api.telegram.org/bot{bot}/sendMessage",
+              json={
+                  "chat_id": chat,
+                  "text": text,
+                  "parse_mode": "HTML",
+                  "disable_web_page_preview": True,
+              },
+              timeout=20,
+          )
+          resp.raise_for_status()
+          print("Announcement sent:", resp.json()["result"]["message_id"])
+          PYEOF
+
+  # ──────────────────────────────────────────────
+  # JOB 2 – OTA notification (push / merged PR)
+  # ──────────────────────────────────────────────
+  notify:
+    if: |
+      github.event_name == 'push' ||
+      github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve maintainer (PR author > pusher)
+        id: maintainer
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            echo "name=${{ github.event.pull_request.user.login }}" >> $GITHUB_OUTPUT
+          else
+            echo "name=${{ github.actor }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send Telegram notification
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHANNEL_ID: ${{ secrets.TG_CHANNEL_ID }}
+          MAINTAINER: ${{ steps.maintainer.outputs.name }}
+        run: |
+          for f in builds/*.json; do
+            python .github/scripts/hertzifyos.py "$f"
+          done
