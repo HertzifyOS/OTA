@@ -1,0 +1,11 @@
+# Installation Guide – Redmi K40S/Poco F4 5G (munch)
+# Maintainer: @HDzungx
+
+1. Download the latest build from the official channel.
+2. Boot into custom recovery (e.g. TWRP / OrangeFox).
+3. Perform a clean flash (wipe Data, Cache, Dalvik).
+4. Flash the ROM zip.
+5. Flash GApps if needed.
+6. Reboot and enjoy HertzifyOS!
+
+For issues, contact @HDzungx on Telegram.
