@@ -1,12 +1,12 @@
 {
 	"response": [
       {
-		"datetime": 1771359863,
-		"filename": "HertzifyOS-1.5-munch-20260217-OFFICIAL.zip",
-		"id": "1ab91c99d5e685152869e44e750dd7f2f97271c12db1a95b23307fa48676d32d",
+		"datetime": 1771681762,
+		"filename": "HertzifyOS-1.5-munch-20260221-OFFICIAL.zip",
+		"id": "912e44b264957e8646bd8a43ad5c6b641ebf878766deff2dfbffac5674bdd304",
 		"romtype": "OFFICIAL",
-		"size": 2587457717,
-		"url": "https://sourceforge.net/projects/hertzifyos/files/munch/HertzifyOS-1.5-munch-20260217-OFFICIAL.zip/download",
+		"size": 2567499978,
+		"url": "https://sourceforge.net/projects/hertzifyos/files/munch/HertzifyOS-1.5-munch-20260221-OFFICIAL.zip/download",
 		"version": "1.5"
 	 }
 	]
