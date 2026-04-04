@@ -1,0 +1,4 @@
+# Installation Guide - Redmi K40S/Poco F4 5G (munch)
+# Maintainer: @HDzungx
+
+For issues, contact @HDzungx on Telegram.
