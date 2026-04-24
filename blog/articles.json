@@ -1,22 +1,26 @@
 [
   {
     "id": 1,
-    "title": "HertzifyOS v1.1 is here",
-    "slug": "hertzifyos-v1-1-release",
-    "date": "April 25, 2026",
-    "author": "hdzungx",
+    "title": "HertzifyOS v1.1 Hotfix Release",
+    "slug": "hertzifyos-v1-1-hotfix",
+    "date": "25 April, 2026",
     "category": "Update",
-    "excerpt": "Discover the new features in our latest update, including performance improvements and new Niri animations.",
-    "image": "https://raw.githubusercontent.com/HertzifyOS/OTA/main/blog/assets/v1.1-banner.jpg"
+    "excerpt": "Addressing minor bugs in the Niri compositor and improving battery standby for Snapdragon 870 devices."
   },
   {
     "id": 2,
-    "title": "Why AOSP is better",
-    "slug": "why-aosp-is-better",
-    "date": "April 10, 2026",
-    "author": "hdzungx",
+    "title": "Deep Dive: Why We Chose Niri as Default",
+    "slug": "why-niri-compositor",
+    "date": "15 April, 2026",
+    "category": "Insight",
+    "excerpt": "Explaining the technical benefits of a scrollable tiling compositor and how it redefines multitasking on Android."
+  },
+  {
+    "id": 3,
+    "title": "Official Build Guide for Custom Kernels",
+    "slug": "custom-kernel-guide",
+    "date": "05 April, 2026",
     "category": "Guide",
-    "excerpt": "A deep dive into why we choose AOSP as our foundation and how it benefits your privacy and performance.",
-    "image": "https://raw.githubusercontent.com/HertzifyOS/OTA/main/blog/assets/aosp-guide.jpg"
+    "excerpt": "A comprehensive walkthrough for developers looking to compile and optimize their own kernels for HertzifyOS."
   }
 ]
