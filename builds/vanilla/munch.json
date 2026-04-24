@@ -2,12 +2,12 @@
   "response": [
     {
       "datetime": 0,
-      "filename": "",
+      "filename": "testvanilla.zop",
       "id": "",
       "romtype": "",
       "size": 0,
       "url": "assd",
-      "version": ""
+      "version": "1.5"
     }
   ]
 }
