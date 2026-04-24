@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "title": "HertzifyOS v1.1 is here",
+    "slug": "hertzifyos-v1-1-release",
+    "date": "April 25, 2026",
+    "author": "hdzungx",
+    "category": "Update",
+    "excerpt": "Discover the new features in our latest update, including performance improvements and new Niri animations.",
+    "image": "https://raw.githubusercontent.com/HertzifyOS/OTA/main/blog/assets/v1.1-banner.jpg"
+  },
+  {
+    "id": 2,
+    "title": "Why AOSP is better",
+    "slug": "why-aosp-is-better",
+    "date": "April 10, 2026",
+    "author": "hdzungx",
+    "category": "Guide",
+    "excerpt": "A deep dive into why we choose AOSP as our foundation and how it benefits your privacy and performance.",
+    "image": "https://raw.githubusercontent.com/HertzifyOS/OTA/main/blog/assets/aosp-guide.jpg"
+  }
+]
