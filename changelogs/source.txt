@@ -1,9 +1,9 @@
-=== 2026-04-25 ===
-- Cập nhật Security Patch tháng 4
-- Tối ưu hóa hiệu năng pin
-- Sửa lỗi văng ứng dụng Camera
+=== 2026-04-25 | HertzifyOS v1.1 Hotfix ===
+- Sửa lỗi sạc chậm trên một số thiết bị
+- Cập nhật Kernel mới nhất
+- Cải thiện độ mượt của Niri compositor
 
-=== 2026-03-15 ===
-- HertzifyOS v1.0 Initial Release
-- Thêm hỗ trợ cho thiết bị Munch
-- Tích hợp Core GApps
+=== 2026-04-10 | Official v1.0 Stable ===
+- Bản phát hành chính thức đầu tiên
+- Hỗ trợ đầy đủ OTA Update
+- Tích hợp Core GApps mặc định
