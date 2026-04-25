@@ -1,13 +1,22 @@
 {
   "response": [
     {
-      "datetime": 0,
+      "datetime": 1745452800,
       "filename": "HertzifyOS-1.6-munch-20260424-OFFICIAL-GAPPS.zip",
       "id": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "romtype": "",
+      "romtype": "OFFICIAL",
       "size": 123655654,
-      "url": "https://sourceforge.net/projects/hertzifyos/files/munch/HertzifyOS-1.5-munch-20260310-OFFICIAL.zip/download",
+      "url": "https://sourceforge.net/xp/download",
       "version": "1.6"
+    },
+    {
+      "datetime": 1741564800,
+      "filename": "HertzifyOS-1.5-munch-20260310-OFFICIAL-GAPPS.zip",
+      "id": "abc123...",
+      "romtype": "OFFICIAL",
+      "size": 119000000,
+      "url": "https://sourceforge.net/z/download",
+      "version": "1.5"
     }
   ]
 }
