@@ -1,0 +1,39 @@
+name: Gen changelogs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+env:
+  BRANCH: "16"
+  START_DATE: "2026-04-01"
+
+jobs:
+  gen-changelogs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Get Date
+        id: date
+        run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Install python dependencies
+        run: pip install gql[aiohttp] httpx --break-system-packages
+
+      - name: Gen changelogs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python .github/scripts/main.py
+
+      - name: Commit to repo
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
+          commit_message: "chore: gen changelogs as per ${{ steps.date.outputs.date }}"
+          file_pattern: "changelogs/source.txt"
