@@ -1,3 +1,26 @@
+=== 2026-05-02  ===
+
+[android_vendor_hertzify]
+- release: Enable clock_reactive_variants (b23a80b) by Pranav Vashi
+
+[android_frameworks_base]
+- Reduce life clock text size to fix line wrapping (341f7a7) by HDzungx
+
+=== 2026-05-01  ===
+
+[android_vendor_extra]
+- extra: Build SystemUIClocks-Weather (973ee3a) by HDzungx
+
+[android_packages_apps_HertzifySettings]
+- New Crowdin updates (#19) (81b4a67) by HDzungx
+- Hertzify: Add support for application downgrade[2/2] (f064951) by LibXZR
+- Hertzify: Add option for PairIP license check blocker (90a91b1) by hiroshi
+- New Crowdin updates (#16) (686adaf) by HDzungx
+- Hertizfy: Fixing spoofing structure (b2f1d1e) by rmp22
+- Hertzify: [app_props] adding app spoofing (aa654b4) by HDzungx
+- Hertzify: [trickystore] tricky store port integrate (2fb26ac) by HDzungx
+- Hertzify: [play_integrity_fix] adding play integrity spoofing (92aad5d) by HDzungx
+
 === 2026-04-30  ===
 
 [android_vendor_hertzify]
