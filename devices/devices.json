@@ -12,6 +12,19 @@
           "inactive": false
         }
       ]
+    },
+    {
+      "name": "Poco F7",
+      "codename": "onyx",
+      "maintainer": "Soon",
+      "github": "",
+      "telegram": "",
+      "supported_versions": [
+        {
+          "version_code": "1.6",
+          "inactive": true
+        }
+      ]
     }
   ]
 }
