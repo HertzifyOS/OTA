@@ -25,6 +25,19 @@
           "inactive": true
         }
       ]
+    },
+    {
+      "name": "Mi 10T/10T Pro",
+      "codename": "apollo",
+      "maintainer": "MurtazaKolachi",
+      "github": "https://github.com/MurtazaKolachi",
+      "telegram": "https://t.me/murtazasapollocommunity",
+      "supported_versions": [
+        {
+          "version_code": "1.6",
+          "inactive": false
+        }
+      ]
     }
   ]
 }
