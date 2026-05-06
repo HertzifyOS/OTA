@@ -13,16 +13,16 @@
         }
       ]
     },
-    {
-      "name": "Poco F7",
+      {
+      "name": "POCO F7",
       "codename": "onyx",
-      "maintainer": "Soon",
-      "github": "",
-      "telegram": "",
+      "maintainer": " Raphael X Kaveer",
+      "github": "https://github.com/Kaveer2009",
+      "telegram": "https://t.me/KaveerRomFactorySupport",
       "supported_versions": [
         {
-          "version_code": "1.6",
-          "inactive": true
+          "version_code": "1.7",
+          "inactive": false
         }
       ]
     },
