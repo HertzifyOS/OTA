@@ -1,0 +1,9 @@
+Device: Mi 10T / 10T Pro / Redmi K30S Ultra (Apollo)
+
+1. Flash recovery image via fastboot using
+  "fastboot flash recovery recovery.img"
+2. Reboot to recovery using either volume + and power button combo or via fastboot command
+3. Navigate to Apply Update > Apply from ADB
+4. adb sideload the ROM zip using "adb sideload pathtozip"
+5. Factory reset/format data
+6. Reboot to system
