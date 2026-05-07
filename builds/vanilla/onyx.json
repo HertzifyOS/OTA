@@ -1,0 +1,27 @@
+{
+    "response": [
+        {
+            "datetime": 1778416229,
+            "filename": "HertzifyOS-1.7-onyx-20260510-OFFICIAL-VANILLA.zip",
+            "id": "3ce021487bfc0efa8c5e644616d01bea02b77f091f678329a3c1f8b283c787d4",
+            "romtype": "OFFICIAL",
+            "size": 3409235647,
+            "url": "https://sourceforge.net/projects/hertzifyos/files/onyx/HertzifyOS-1.7-onyx-20260510-OFFICIAL-VANILLA.zip/download",
+            "version": "1.7"
+        }
+    ]
+}
+
+{
+    "response": [
+        {
+            "datetime": 1778186093,
+            "filename": "HertzifyOS-1.7-onyx-20260507-OFFICIAL-VANILLA.zip",
+            "id": "ebf178dd01e531eeaead015af2af38df64adb6f8de4dfd12aaae7cd6d2c36c54",
+            "romtype": "OFFICIAL",
+            "size": 3397838302,
+            "url": "https://sourceforge.net/projects/hertzifyos/files/onyx/HertzifyOS-1.7-onyx-20260507-OFFICIAL-VANILLA.zip/download",
+            "version": "1.7"
+        }
+    ]
+}

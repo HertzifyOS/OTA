@@ -1,0 +1,7 @@
+#1778164391
+-Initial official build
+-Tune LMKD and swap parameters for better memory management
+-Fine-tune SurfaceFlinger offsets for UI smoothness
+-Update target screen density to 450 DPI
+-Enable Optimized Power Management
+-Add missing libnova.so to vendor
