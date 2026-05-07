@@ -7,20 +7,25 @@ on:
         description: "Brand (e.g. Xiaomi, Samsung)"
         required: true
         default: "Xiaomi"
+
       codename:
-        description: "Device codename (e.g. munch)"
+        description: "Device codename"
         required: true
+
       device_name:
-        description: "Device name (e.g. Poco F4)"
+        description: "Device name"
         required: true
+
       maintainer:
-        description: "Maintainer username (no @)"
+        description: "Maintainer username"
         required: true
+
       github_user:
-        description: "Maintainer GitHub username"
+        description: "GitHub username"
         required: true
+
       tg_username:
-        description: "Maintainer Telegram username (no @)"
+        description: "Telegram username"
         required: true
 
 concurrency:
@@ -30,63 +35,64 @@ concurrency:
 jobs:
   add-device:
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Validate & Update Files
-        id: update_files
+        env:
+          BRAND: ${{ github.event.inputs.brand }}
+          CODENAME: ${{ github.event.inputs.codename }}
+          DEVICE_NAME: ${{ github.event.inputs.device_name }}
+          MAINTAINER: ${{ github.event.inputs.maintainer }}
+          GITHUB_USER: ${{ github.event.inputs.github_user }}
+          TG_USER: ${{ github.event.inputs.tg_username }}
         run: |
-          export BRAND="${{ github.event.inputs.brand }}"
-          export CODENAME="${{ github.event.inputs.codename }}"
-          export DEVICE_NAME="${{ github.event.inputs.device_name }}"
-          export MAINTAINER="${{ github.event.inputs.maintainer }}"
-          export GITHUB_USER="${{ github.event.inputs.github_user }}"
-          export TG_USER="${{ github.event.inputs.tg_username }}"
-
-          # 1. Update devices/hertzify.devices
+          # Update device list
           if grep -qE "^${CODENAME}$" devices/hertzify.devices; then
-            echo "::error::Device $CODENAME already exists in hertzify.devices"
+            echo "::error::Device already exists"
             exit 1
           fi
+
           echo "$CODENAME" >> devices/hertzify.devices
 
-          # 2. Update devices/devices.json
           python3 <<EOF
           import json
           import os
 
-          file_path = 'devices/devices.json'
-          with open(file_path, 'r') as f:
+          path = "devices/devices.json"
+
+          with open(path) as f:
               data = json.load(f)
 
-          brand = os.environ['BRAND']
+          brand = os.environ["BRAND"]
+
           new_device = {
-              "name": os.environ['DEVICE_NAME'],
-              "codename": os.environ['CODENAME'],
-              "maintainer": os.environ['MAINTAINER'],
+              "name": os.environ["DEVICE_NAME"],
+              "codename": os.environ["CODENAME"],
+              "maintainer": os.environ["MAINTAINER"],
               "github": f"https://github.com/{os.environ['GITHUB_USER']}",
               "telegram": f"https://t.me/{os.environ['TG_USER']}",
               "supported_versions": [
                   {
                       "version_code": "Soon",
-                      "inactive": false
+                      "inactive": False
                   }
               ]
           }
 
-          if brand not in data:
-              data[brand] = []
-          
-          if any(d['codename'] == new_device['codename'] for d in data[brand]):
-              print(f"::error::Device {new_device['codename']} already exists in JSON")
-              exit(1)
+          data.setdefault(brand, [])
+
+          if any(d["codename"] == new_device["codename"] for d in data[brand]):
+              raise SystemExit("Device already exists in JSON")
 
           data[brand].append(new_device)
 
-          with open(file_path, 'w') as f:
+          with open(path, "w") as f:
               json.dump(data, f, indent=2)
           EOF
 
@@ -94,8 +100,11 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
           git add devices/devices.json devices/hertzify.devices
+
           git commit -m "feat(ota): add ${{ github.event.inputs.device_name }} (${{ github.event.inputs.codename }})"
+
           git push
 
       - name: Telegram Announcement
@@ -103,21 +112,28 @@ jobs:
           TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
           TG_CHANNEL_ID: ${{ secrets.TG_CHANNEL_ID }}
         run: |
-          DEVICE="${{ github.event.inputs.device_name }}"
-          CODENAME="${{ github.event.inputs.codename }}"
-          MAINTAINER="${{ github.event.inputs.tg_username }}"
-          
           TEXT=$(cat <<EOF
           🎉 <b>Another new device has been added to the official device roster!</b>
 
-          📱 <b>Device:</b> ${DEVICE} (<code>${CODENAME}</code>)
-          👤 <b>Maintained by:</b> @${MAINTAINER}
+          📱 <b>Device:</b> ${{ github.event.inputs.device_name }} (<code>${{ github.event.inputs.codename }}</code>)
+          👤 <b>Maintained by:</b> @${{ github.event.inputs.tg_username }}
 
           🔔 Stay tuned for the first build!
           #HertzifyOS
           EOF
           )
 
-          curl -s -X POST "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
+          curl -s \
+            -X POST \
+            "https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage" \
             -H "Content-Type: application/json" \
-            -d "$(python3 -c "import json,os; print(json.dumps({'chat_id':os.environ['TG_CHANNEL_ID'],'text':os.environ['TEXT'],'parse_mode':'HTML','disable_web_page_preview':True}))" --env TEXT="$TEXT")"
+            -d "$(jq -n \
+              --arg chat_id "$TG_CHANNEL_ID" \
+              --arg text "$TEXT" \
+              '{
+                chat_id: $chat_id,
+                text: $text,
+                parse_mode: "HTML",
+                disable_web_page_preview: true
+              }'
+            )"
