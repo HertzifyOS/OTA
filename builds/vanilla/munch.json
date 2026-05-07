@@ -1,6 +1,15 @@
 {
     "response": [
         {
+            "datetime": 1778154552,
+            "filename": "HertzifyOS-1.7-munch-20260507-OFFICIAL-VANILLA.zip",
+            "id": "0877fe6cdab1df0d810e7ce714358ce8b1c4645bc2e5ab0eaa5bd3a665e43405",
+            "romtype": "OFFICIAL",
+            "size": 1698979995,
+            "url": "https://sourceforge.net/projects/hertzifyos/files/munch/HertzifyOS-1.7-munch-20260507-OFFICIAL-VANILLA.zip/download",
+            "version": "1.7"
+        },
+        {
             "datetime": 1777647845,
             "filename": "HertzifyOS-1.6-munch-20260501-OFFICIAL-VANILLA.zip",
             "id": "2482e1d866e6c8b51f42e5b4d01486bdff8143034093d87a6c29983f45cd74af",
