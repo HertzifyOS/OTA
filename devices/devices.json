@@ -38,6 +38,19 @@
           "inactive": false
         }
       ]
+    },
+    {
+      "name": "Poco X7 Pro/Redmi Turbo 4",
+      "codename": "rodin",
+      "maintainer": "Sensei",
+      "github": "https://github.com/SenseiiX",
+      "telegram": "https://t.me/WazzupSensei911",
+      "supported_versions": [
+        {
+          "version_code": "1.7",
+          "inactive": false
+        }
+      ]
     }
   ]
 }
