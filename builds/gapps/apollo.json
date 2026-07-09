@@ -1,6 +1,15 @@
 {
     "response": [
         {
+            "datetime": 1783529028,
+            "filename": "HertzifyOS-1.8-apollo-20260708-OFFICIAL-GAPPS.zip",
+            "id": "2bf6c0f4f64dbfa396f0b3da644b4735dd829c1d6f3d99939c833568fa80dddf",
+            "romtype": "OFFICIAL",
+            "size": 2721980464,
+            "url": "https://sourceforge.net/projects/hertzifyos/files/apollo/HertzifyOS-1.8-apollo-20260708-OFFICIAL-GAPPS.zip/download",
+            "version": "1.8"
+        },
+        {
             "datetime": 1778176114,
             "filename": "HertzifyOS-1.7-apollo-20260507-OFFICIAL-GAPPS.zip",
             "id": "ad23cac106358e8f5dd6fd0f99e10e5112310eaba852c475fc71a1efd0bcc46d",
