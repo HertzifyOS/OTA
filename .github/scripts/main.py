@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+import re
 import sys
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
@@ -53,6 +54,10 @@ def fetch_existing_changelog() -> str:
     except httpx.HTTPError as e:
         log.error("Failed to fetch existing changelog: %s", e)
         sys.exit(1)
+
+
+def extract_existing_hashes(changelog: str) -> set[str]:
+    return set(re.findall(r"\(([0-9a-f]{7})\)", changelog))
 
 
 def get_projects(file: str) -> list[str]:
@@ -199,7 +204,7 @@ def render_new_block(commits: list[dict]) -> str:
         if date != current_date:
             if current_date is not None:
                 lines.append("")
-            lines.append(f"=== {date}  ===")
+            lines.append(f"=== {date} [branch {BRANCH}] ===")
             current_date = date
             current_repo = None
 
@@ -240,9 +245,13 @@ async def main() -> None:
         sys.exit(1)
 
     existing_changelog = fetch_existing_changelog()
+    existing_hashes = extract_existing_hashes(existing_changelog)
 
     all_commits = await fetch_all_commits(repos, start_date, end_date)
     log.info("Total commits collected: %d", len(all_commits))
+
+    all_commits = [c for c in all_commits if c["hash"][:7] not in existing_hashes]
+    log.info("New commits after dedupe: %d", len(all_commits))
 
     if not all_commits:
         log.warning("No new commits found in the given date range. Nothing to write.")
